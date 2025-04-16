@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Gastos</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* Fundo cinza claro */
+            color: #000; /* Todas as letras em preto */
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            width: 80%;
+            height: 80%;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 450px; /* Largura aumentada para destacar o título */
+            animation: fadeIn 1.5s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        h1 {
+            color: #fff; /* Cor do título em branco */
+            background-color: #00bfae; /* Fundo mais forte para o título */
+            padding: 20px;
+            font-size: 3rem; /* Aumentando o tamanho do título */
+            margin-bottom: 30px;
+            width: 100%;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+
+        input {
+            padding: 12px;
+            margin: 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            width: 80%;
+            font-size: 1.1rem;
+            background-color: #f9f9f9;
+            color: #333;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00bfae;
+            background-color: #fff;
+        }
+
+        button {
+            padding: 12px 24px;
+            margin: 15px;
+            border-radius: 12px;
+            border: none;
+            background-color: #00bfae;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0091c1;
+        }
+
+        button:active {
+            background-color: #007b8a;
+        }
+
+        #transactionSection {
+            display: none;
+        }
+
+        p {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Ajustes para Histórico de Gastos e Entrada de Saldo lado a lado */
+        #expenseHistory, #incomeHistory {
+            margin: 20px;
+            width: 45%; /* Diminuindo a largura */
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: 60vh; /* Diminuindo a altura */
+            overflow-y: auto;
+            font-size: 0.9rem; /* Diminuindo o tamanho da fonte */
+        }
+
+        /* Ajustes no Histórico de Saldo (metade do tamanho original) */
+        #historySection {
+            margin: 20px;
+            width: 45%; /* Ajustando a largura para metade */
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: 40vh; /* Diminuindo a altura */
+            overflow-y: auto;
+            font-size: 0.8rem; /* Tamanho da fonte ajustado */
+        }
+
+        /* Estilo para a lista de respostas "Como foi gasto" */
+        #expenseList, #incomeList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #expenseList li, #incomeList li {
+            background-color: #e0f7fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #00796b;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Histórico de transações */
+        #historyList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #historyList li {
+            background-color: #f1f8e9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #388e3c;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Seção de Controle de Gastos -->
+        <div class="container">
+            <h1>Controle de Gastos</h1>
+
+            <!-- Formulário para inserir dados -->
+            <div id="userInfoSection">
+                <form id="financeForm">
+                    <input type="text" id="name" placeholder="Digite seu nome" required><br>
+                    <input type="text" id="dob" placeholder="Data de Nascimento (dd/mm/aaaa)" required><br>
+                    <button type="submit">Salvar</button>
+                </form>
+            </div>
+
+            <!-- Seção para transações -->
+            <div id="transactionSection">
+                <h2>Bem-vindo, <span id="userName"></span></h2>
+                <p>Saldo Atual: <span id="balanceMessage">R$ 0</span></p>
+                
+                <!-- Campo para inserir o valor com sinal -->
+                <input type="text" id="transactionValue" placeholder="Digite o valor (+ ou -)" required><br>
+                
+                <!-- Botão de operação -->
+                <button onclick="processTransaction()">Enviar</button>
+                <button onclick="showBalance()">Quanto falta?</button>
+            </div>
+        </div>
+
+        <!-- Seções de Histórico de Gastos e Entrada de Saldo -->
+        <div>
+            <div id="expenseHistory">
+                <h3>Histórico de Gastos:</h3>
+                <ul id="expenseList"></ul>
+            </div>
+
+            <div id="incomeHistory">
+                <h3>Entrada de Saldo:</h3>
+                <ul id="incomeList"></ul>
+            </div>
+
+            <!-- Histórico de Saldo (ajustado) -->
+            <div id="historySection">
+                <h3>Histórico de Saldos:</h3>
+                <ul id="historyList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let saldo = 0; // Saldo inicial agora é 0
+        let history = JSON.parse(localStorage.getItem('history')) || []; // Recupera o histórico de saldos armazenado
+        const userName = localStorage.getItem('name'); // Recupera o nome do usuário da página anterior
+        let expenseHistory = []; // Array para armazenar o histórico de respostas de "Como foi gasto"
+        let incomeHistory = []; // Array para armazenar o histórico de entradas de saldo
+
+        // Mostra os dados do usuário e permite a transação
+        if (userName) {
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('transactionSection').style.display = 'block'; // Exibe a seção de transações
+            document.getElementById('userInfoSection').style.display = 'none'; // Esconde a seção de entrada de dados
+        }
+
+        // Quando o formulário for enviado, salva os dados localmente
+        document.getElementById('financeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const dob = document.getElementById('dob').value;
+
+            if (name && dob) {
+                // Salva os dados no armazenamento local (localStorage) para o futuro
+                localStorage.setItem('name', name);
+                localStorage.setItem('dob', dob);
+
+                // Atualiza a interface
+                document.getElementById('userName').textContent = name;
+                document.getElementById('transactionSection').style.display = 'block'; // Exibe a seção de transações
+                document.getElementById('userInfoSection').style.display = 'none'; // Esconde a seção de entrada de dados
+            } else {
+                alert("Por favor, preencha todos os campos.");
+            }
+        });
+
+        // Processa o valor inserido, somando ou subtraindo dependendo do sinal
+        function processTransaction() {
+            const transactionValue = document.getElementById('transactionValue').value;
+            
+            // Verifica se o valor inserido é 'zerar' para apagar o histórico
+            if (transactionValue.toLowerCase() === 'zerar') {
+                clearAllHistory(); // Chama a função para apagar todos os históricos
+                alert('Todos os históricos foram apagados!');
+                return; // Não processa o valor caso seja 'zerar'
+            }
+
+            // Verifica se o valor começa com + ou -
+            if (transactionValue && (transactionValue.startsWith('+') || transactionValue.startsWith('-'))) {
+                // Converte o valor para float, considerando o sinal
+                const value = parseFloat(transactionValue);
+                
+                if (!isNaN(value)) {
+                    saldo += value; // Atualiza o saldo com o valor informado
+                    
+                    let paymentMethod = null;
+                    let expenditure = null;
+                    if (value < 0) {
+                        // Se o valor for negativo, pergunta qual a forma de pagamento
+                        paymentMethod = prompt("Qual a forma de pagamento? (pix, dinheiro, crédito, débito, cheque)");
+                        if (paymentMethod) {
+                            alert(`Pagamento via ${paymentMethod} registrado!`);
+                        }
+                        
+                        // Pergunta sobre como foi gasto o dinheiro
+                        expenditure = prompt("Como foi gasto o dinheiro? (Ex: ifood, uber, mercado, boletos)");
+                        if (expenditure) {
+                            alert(`Gasto em: ${expenditure}`);
+                            addExpenseToHistory(expenditure, paymentMethod); // Adiciona o gasto ao histórico à direita com o método de pagamento
+                        }
+                    } else {
+                        // Se o valor for positivo, registra como entrada de saldo
+                        addIncomeToHistory(value); // Adiciona à entrada de saldo
+                    }
+                    
+                    document.getElementById('transactionValue').value = ''; // Limpa o campo de valor
+                    showBalance(); // Atualiza a exibição do saldo
+                    saveHistory(value, paymentMethod, expenditure); // Salva o histórico de saldos, método de pagamento e gasto
+                } else {
+                    alert("Por favor, insira um valor válido.");
+                }
+            } else {
+                alert("Por favor, insira um valor começando com '+' ou '-'.");
+            }
+        }
+
+        // Exibe o saldo atual
+        function showBalance() {
+            const balanceMessage = document.getElementById('balanceMessage');
+            balanceMessage.textContent = "R$ " + saldo;
+
+            // Se o saldo for negativo, mostrar quanto falta para zerar
+            if (saldo < 0) {
+                const faltaParaZerar = Math.abs(saldo);
+                alert(`Seu saldo está negativo. Faltam R$ ${faltaParaZerar} para zerar o saldo.`);
+            }
+        }
+
+        // Salva o histórico de saldos, método de pagamento e como foi gasto o dinheiro
+        function saveHistory(transactionValue, paymentMethod, expenditure) {
+            // Cria um objeto para registrar a transação, método de pagamento e gasto
+            const transactionRecord = {
+                value: transactionValue,
+                method: paymentMethod || "Não especificado",
+                expenditure: expenditure || "Não especificado",
+                date: new Date().toLocaleString() // Adiciona a data
+            };
+            history.push(transactionRecord); // Adiciona a transação e o método de pagamento ao histórico
+            localStorage.setItem('history', JSON.stringify(history)); // Salva o histórico no localStorage
+            displayHistory(); // Exibe o histórico na tela
+        }
+
+        // Exibe o histórico de saldos
+        function displayHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = ''; // Limpa a lista atual
+
+            // Adiciona cada saldo ao histórico exibido
+            history.forEach((record, index) => {
+                const li = document.createElement('li');
+                li.textContent = `Transação ${index + 1}: R$ ${record.value} (Método de pagamento: ${record.method}, Gasto em: ${record.expenditure}) - Data: ${record.date}`;
+                historyList.appendChild(li);
+            });
+        }
+
+        // Função para apagar todos os históricos
+        function clearAllHistory() {
+            history = []; // Limpa o histórico
+            localStorage.removeItem('history'); // Remove o histórico do localStorage
+            saldo = 0; // Restaura o saldo para 0
+            document.getElementById('balanceMessage').textContent = "R$ 0"; // Atualiza o saldo na tela
+            clearExpenseHistory(); // Limpa o histórico de gastos
+            displayHistory(); // Exibe o histórico atualizado
+        }
+
+        // Limpa o histórico de gastos
+        function clearExpenseHistory() {
+            document.getElementById('expenseList').innerHTML = ''; // Limpa a lista de gastos
+            document.getElementById('incomeList').innerHTML = ''; // Limpa a lista de entradas
+        }
+
+        // Adiciona a resposta de "Como foi gasto" ao histórico à direita
+        function addExpenseToHistory(expense, paymentMethod) {
+            const expenseList = document.getElementById('expenseList');
+            const currentDate = new Date().toLocaleString(); // Captura a data e hora atual
+            const li = document.createElement('li');
+            li.textContent = `${expense} - Forma de pagamento: ${paymentMethod} - Data: ${currentDate}`;
+            expenseList.appendChild(li); // Adiciona a resposta à lista de gastos
+        }
+
+        // Adiciona a entrada de saldo ao histórico
+        function addIncomeToHistory(value) {
+            const incomeList = document.getElementById('incomeList');
+            const currentDate = new Date().toLocaleString(); // Captura a data e hora atual
+            const li = document.createElement('li');
+            li.textContent = `R$ ${value} - Data: ${currentDate}`;
+            incomeList.appendChild(li); // Adiciona a entrada ao histórico de entradas
+        }
+
+        // Exibe o histórico ao carregar a página
+        displayHistory();
+
+    </script>
+</body>
+</html>
